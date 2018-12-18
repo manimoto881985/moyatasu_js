@@ -18,6 +18,54 @@ body {
   font-family: PixelMplus12 Regular;
 }
 
+code, html, kbd, pre, samp {
+  font-family: PixelMplus12 Regular;
+}
+
+code {
+  font-family: PixelMplus12 Bold;
+  color: #dc3023;
+  background-color: #f9f6e2;
+  margin: 0 4px;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+pre {
+  background-color: #f9f6e2;
+  padding: 0.8rem;
+  border-radius: 4px;
+  line-height: 1.2;
+  white-space: normal;
+}
+
+pre > code {
+  font-size: 80%;
+  font-family: PixelMplus12 Regular;
+  line-height: 1.2;
+  color: #212529;
+  background-color: #f9f6e2;
+  margin: 0;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+th {
+  font-family: PixelMplus12 Bold;
+  border: 1px solid #f9f6e2;
+  padding: 2px 8px;
+}
+
+td {
+  border: 1px solid #f9f6e2;
+  padding: 2px 8px;
+}
+
+blockquote {
+  border-left: 4px solid #f9f6e2;
+  padding-left: 1.5rem;
+}
+
 h1 {
   font-size: 32px;
   font-weight: bold;
