@@ -4,10 +4,11 @@ import Textarea from 'react-textarea-autosize';
 import remark from 'remark'
 import reactRenderer from 'remark-react'
 import remarkBreaks from 'remark-breaks'
+import remarkExternalLinks from 'remark-external-links'
 import {db, auth, provider, fieldValue} from './firebase'
 
 const dbCollectionArticles = db.collection("messages");
-const remarkProcessor = remark().use(reactRenderer).use(remarkBreaks);
+const remarkProcessor = remark().use(reactRenderer).use(remarkBreaks).use(remarkExternalLinks);
 
 class App extends React.Component {
   constructor () {
@@ -111,7 +112,7 @@ class App extends React.Component {
       const content = remarkProcessor.processSync(article.message).contents
 
       return (
-        <div key={index} className="container is-dark with-title moya__item">
+        <div key={index} className="nes-container is-dark with-title moya__item">
           <div className="title moya__title">
             {article.displayName}
           </div>
