@@ -111,7 +111,7 @@ class App extends React.Component {
       const content = remarkProcessor.processSync(article.message).contents
 
       return (
-        <div key={index} className="container is-dark with-title moya__item">
+        <div key={index} className="nes-container is-dark with-title moya__item">
           <div className="title moya__title">
             {article.displayName}
           </div>
