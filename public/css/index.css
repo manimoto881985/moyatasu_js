@@ -11,7 +11,7 @@
 }
 
 body {
-  font-size: 16px;
+  font-size: 14px;
   padding: 20px;
   background-color: #212529;
   color: #fff;
@@ -217,7 +217,7 @@ h1 > button {
 }
 
 #messages > .moya__item > .moya__title {
-  font-size: 16px;
+  font-size: 14px;
 }
 
 .moya__item {
