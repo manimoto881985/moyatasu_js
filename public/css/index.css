@@ -10,6 +10,10 @@
       format("woff2");
 }
 
+html {
+  font-size: 14px;
+}
+
 body {
   font-size: 14px;
   line-height: 1.6;
@@ -215,10 +219,6 @@ h1 > button {
   .moya__h1_image_first {
     display: none;
   }
-}
-
-#messages > .moya__item > .moya__title {
-  font-size: 14px;
 }
 
 .moya__item {
