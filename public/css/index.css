@@ -45,7 +45,7 @@ pre {
 }
 
 pre > code {
-  font-size: 80%;
+  font-size: 90%;
   font-family: PixelMplus12 Regular;
   line-height: 1.2;
   color: #212529;
@@ -149,7 +149,7 @@ h1 > button {
 
 .moya__datetime {
   margin-top: 12px;
-  font-size: 80%;
+  font-size: 90%;
   text-align: right;
   color: #ccc;
 }
