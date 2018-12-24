@@ -122,9 +122,7 @@ class App extends React.Component {
 
   handleChange = (e) => {
     const t = e.target;
-    this.setState({
-      [t.name]: t.value
-    })
+    this.state[t.name] = t.value;
   }
 
   componentWillMount () {
@@ -257,7 +255,7 @@ class App extends React.Component {
             id="message"
             className="moya_comment_message"
             placeholder="コメントを追加..."
-            onBlur={this.handleChange}
+            onChange={this.handleChange}
             name={name}
             value={this.state[`comment-${article.id}`]}
           />
@@ -292,7 +290,7 @@ class App extends React.Component {
             id="message"
             className="moya_message"
             placeholder="最近の出来事を共有..."
-            onBlur={this.handleChange}
+            onChange={this.handleChange}
             name="article"
             value={this.state.article}
           />
