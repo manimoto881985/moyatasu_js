@@ -88,6 +88,27 @@ class App extends React.Component {
     });
   }
 
+  deleteComment = (e) => {
+    if(window.confirm('本当に削除しますか？')){
+      const commentId = e.target.value;
+      const articleId = e.target.dataset.articleId;
+      const article = dbCollectionArticles.doc(articleId);
+      const comment = article.collection('comments').doc(commentId);
+
+      comment.delete().then(function() {
+        article.update({
+          deletedCommentAt: fieldValue.serverTimestamp()
+        }).then(function(docRef) {
+          console.log(docRef);
+        }).catch(function(error) {
+          console.error("Error update document: ", error);
+        });
+      }).catch(function(error) {
+        console.error("Error removeing comment: ", error);
+      });
+    }
+  }
+
   login = (e) => {
     auth.signInWithPopup(provider);
   }
@@ -117,7 +138,8 @@ class App extends React.Component {
             const dbCollectionArticlesComments = dbCollectionArticles.doc(data.id).collection('comments').orderBy('created');
             dbCollectionArticlesComments.get().then(querySnapshot => {
               querySnapshot.forEach(comment_doc => {
-                const comment_data = comment_doc.data();
+                let comment_data = comment_doc.data();
+                comment_data.id = comment_doc.id;
                 data_comments.push(comment_data);
               });
               return data_comments;
@@ -196,13 +218,19 @@ class App extends React.Component {
       const created = comment.created ?
         DayJS.unix(comment.created.seconds).format('YYYY-MM-DD HH:mm:ss') :
         DayJS(new Date()).format('YYYY-MM-DD HH:mm:ss');
+      const deleteButton = comment.uid === this.state.me.uid ?
+        <button value={comment.id} data-article-id={article.id} className="moya__delete_link" onClick={this.deleteComment}>[削除]</button> :
+        null
       const content = remarkProcessor.processSync(comment.message).contents
 
       return (
         <div key={index} className="moya__comment">
           <div className="moya__comment__header">
             <div className="moya__comment__title">{comment.displayName}</div>
-            <div className="moya__comment__datetime">{created}</div>
+            <div className="moya__comment__datetime">
+              {created}
+              {deleteButton}
+            </div>
           </div>
           <div className="moya__comment__content">
             {content}
