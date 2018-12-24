@@ -36,6 +36,7 @@ class App extends React.Component {
     ref.set({
       message: article,
       created: fieldValue.serverTimestamp(),
+      updated: fieldValue.serverTimestamp(),
       uid: this.state.me ? this.state.me.uid : 'nobody',
       displayName: this.state.me ? this.state.me.displayName : 'noname'
     }).then(function(docRef) {
@@ -51,6 +52,60 @@ class App extends React.Component {
         console.log("Document successfully deleted!");
       }).catch(function(error) {
         console.error("Error removeing document: ", error);
+      });
+    }
+  }
+
+  addComment = (e) => {
+    e.preventDefault();
+
+    const articleId = e.target.dataset.articleId;
+    const key = `comment-${articleId}`
+
+    const comment = this.state[key];
+    if (!comment) { return; }
+
+    this.setState({
+      [key]: ''
+    });
+
+    const article = dbCollectionArticles.doc(articleId);
+    const ref = article.collection('comments').doc();
+    ref.set({
+      message: comment,
+      created: fieldValue.serverTimestamp(),
+      uid: this.state.me ? this.state.me.uid : 'nobody',
+      displayName: this.state.me ? this.state.me.displayName : 'noname'
+    }).then(function(docRef) {
+      article.update({
+        updated: fieldValue.serverTimestamp()
+      }).then(function(docRef) {
+        console.log(docRef);
+      }).catch(function(error) {
+        console.error("Error update document: ", error);
+      });
+    }).catch(function(error) {
+      console.error("Error adding document: ", error);
+    });
+  }
+
+  deleteComment = (e) => {
+    if(window.confirm('本当に削除しますか？')){
+      const commentId = e.target.value;
+      const articleId = e.target.dataset.articleId;
+      const article = dbCollectionArticles.doc(articleId);
+      const comment = article.collection('comments').doc(commentId);
+
+      comment.delete().then(function() {
+        article.update({
+          deletedCommentAt: fieldValue.serverTimestamp()
+        }).then(function(docRef) {
+          console.log(docRef);
+        }).catch(function(error) {
+          console.error("Error update document: ", error);
+        });
+      }).catch(function(error) {
+        console.error("Error removeing comment: ", error);
       });
     }
   }
@@ -75,18 +130,31 @@ class App extends React.Component {
       if (user) {
         dbCollectionArticles.orderBy('created').onSnapshot((docSnapShot) => {
           let articles = [];
+
           docSnapShot.forEach(doc => {
             let data = doc.data();
             data.id = doc.id;
-            articles.push(data);
-          });
-          console.log(articles);
 
-          this.setState({
-            articles,
-            loaded: true,
-            me: user
-          })
+            let data_comments = [];
+            const dbCollectionArticlesComments = dbCollectionArticles.doc(data.id).collection('comments').orderBy('created');
+            dbCollectionArticlesComments.get().then(querySnapshot => {
+              querySnapshot.forEach(comment_doc => {
+                let comment_data = comment_doc.data();
+                comment_data.id = comment_doc.id;
+                data_comments.push(comment_data);
+              });
+              return data_comments;
+            }).then(result_data_comments => {
+              data.comments = result_data_comments;
+              articles.push(data);
+
+              this.setState({
+                articles,
+                loaded: true,
+                me: user
+              })
+            });
+          });
         })
       } else {
         this.setState({
@@ -98,6 +166,7 @@ class App extends React.Component {
 
   renderTodoList () {
     const articles = this.state.articles.slice();
+
     const articlesLength = articles.length;
     const ListItem = articles.reverse().map((article, index) => {
       const imageIndex = ((articlesLength - index) % 45) + 1;
@@ -130,6 +199,9 @@ class App extends React.Component {
               </div>
             </div>
           </div>
+          <div className="moya__comments">
+            {this.renderComments(article)}
+          </div>
         </div>
       )
     })
@@ -137,6 +209,54 @@ class App extends React.Component {
     return (
       <div>
         {ListItem}
+      </div>
+    )
+  }
+
+  renderComments (article) {
+    const name = `comment-${article.id}`
+    const ListComment = article.comments.map((comment, index) => {
+      const created = comment.created ?
+        DayJS.unix(comment.created.seconds).format('YYYY-MM-DD HH:mm:ss') :
+        DayJS(new Date()).format('YYYY-MM-DD HH:mm:ss');
+      const deleteButton = comment.uid === this.state.me.uid ?
+        <button value={comment.id} data-article-id={article.id} className="moya__delete_link" onClick={this.deleteComment}>[削除]</button> :
+        null
+      const content = remarkProcessor.processSync(comment.message).contents
+
+      return (
+        <div key={index} className="moya__comment">
+          <div className="moya__comment__header">
+            <div className="moya__comment__title">{comment.displayName}</div>
+            <div className="moya__comment__datetime">
+              {created}
+              {deleteButton}
+            </div>
+          </div>
+          <div className="moya__comment__content">
+            {content}
+          </div>
+        </div>
+      )
+    })
+
+    return (
+      <div>
+        {ListComment}
+        <form autoComplete="off" className="moya__comment__form" onSubmit={this.addComment}>
+          <Textarea
+            minRows={1}
+            id="message"
+            className="moya_comment_message"
+            placeholder="コメントを追加..."
+            onChange={this.handleChange}
+            name={name}
+            value={this.state[`comment-${article.id}`]}
+          />
+          <div className="moya__comment__form__submit">
+            <button type="submit" id="submit" data-article-id={article.id} onClick={this.addComment}>Submit</button>
+          </div>
+        </form>
       </div>
     )
   }

@@ -183,6 +183,62 @@ h1 > button {
   text-decoration: underline;
 }
 
+.moya__comments {
+  border-top: 2px solid #999;
+  margin-top: 16px;
+  padding-top: 12px;
+}
+
+.moya__comment {
+  color: #fff;
+  border-bottom: 1px solid #666;
+  margin-bottom: 12px;
+  padding: 0 8px 12px;
+}
+
+.moya__comment__header {
+  display: flex;
+}
+
+.moya__comment__title {
+  flex: 1;
+}
+
+.moya__comment__content {
+  word-break: break-all;
+  display: flex;
+}
+
+.moya__comment__content:before  {
+  content: '*「';
+  margin-right: 0.2rem;
+  width: 1.5rem;
+}
+
+.moya__comment__content > p  {
+  margin-bottom: 0;
+  font-size: 95%;
+  flex: 1
+}
+
+.moya__comment__datetime {
+  font-size: 85%;
+  text-align: right;
+  color: #ccc;
+}
+
+.moya_comment_message {
+  width: 100%;
+  padding: 0.5rem;
+  border: 2px solid #eee;
+  border-radius: 4px;
+  font-size: 95%;
+}
+
+.moya__comment__form__submit {
+  text-align: right;
+}
+
 @media (min-width: 768px) {
   .moya__container {
     max-width: 640px;
