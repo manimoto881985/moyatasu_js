@@ -8,6 +8,7 @@ import remarkExternalLinks from 'remark-external-links'
 import {db, auth, provider, fieldValue} from './firebase'
 
 const dbCollectionArticles = db.collection("messages");
+const dbCollectionComments = db.collection("comments");
 const remarkProcessor = remark().use(reactRenderer).use(remarkBreaks).use(remarkExternalLinks);
 
 class App extends React.Component {
@@ -15,7 +16,6 @@ class App extends React.Component {
     super();
     this.state = {
       articles: [],
-      article: '',
       me: null
     }
   }
@@ -26,9 +26,10 @@ class App extends React.Component {
     const article = this.state.article
     if (!article) { return; }
 
-    this.setState({
-      article: ''
+    this.setState({article: ''}, () => {
+      this.setState({article: undefined});
     });
+
     const submit = document.getElementById('submit');
     submit.focus();
 
@@ -65,13 +66,14 @@ class App extends React.Component {
     const comment = this.state[key];
     if (!comment) { return; }
 
-    this.setState({
-      [key]: ''
+    this.setState({[key]: ''}, () => {
+      this.setState({[key]: undefined});
     });
 
     const article = dbCollectionArticles.doc(articleId);
-    const ref = article.collection('comments').doc();
+    const ref = dbCollectionComments.doc();
     ref.set({
+      articleId: articleId,
       message: comment,
       created: fieldValue.serverTimestamp(),
       uid: this.state.me ? this.state.me.uid : 'nobody',
@@ -94,7 +96,7 @@ class App extends React.Component {
       const commentId = e.target.value;
       const articleId = e.target.dataset.articleId;
       const article = dbCollectionArticles.doc(articleId);
-      const comment = article.collection('comments').doc(commentId);
+      const comment = dbCollectionComments.doc(commentId);
 
       comment.delete().then(function() {
         article.update({
@@ -129,18 +131,37 @@ class App extends React.Component {
     auth.onAuthStateChanged(user => {
       if (user) {
         dbCollectionArticles.orderBy('created').onSnapshot((docSnapShot) => {
-          let articles = [];
 
-          docSnapShot.forEach(doc => {
-            let data = doc.data();
-            data.id = doc.id;
-            articles.push(data);
-          });
+          let dataComments = [];
+          dbCollectionComments.orderBy('created').get().then(querySnapshot => {
+            querySnapshot.forEach(comment_doc => {
+              let comment_data = comment_doc.data();
+              comment_data.id = comment_doc.id;
+              dataComments.push(comment_data);
+            });
+            return dataComments;
+          }).then(resultDataComments => {
+            let comments = {};
+            resultDataComments.forEach(dataComment => {
+              const articleId = dataComment.articleId;
+              if(!comments[articleId]){ comments[articleId] = []; }
+              comments[articleId].push(dataComment);
+            })
 
-          this.setState({
-            articles,
-            loaded: true,
-            me: user
+            let articles = [];
+
+            docSnapShot.forEach(doc => {
+              let data = doc.data();
+              data.id = doc.id;
+              data.comments = comments[doc.id] || [];
+              articles.push(data);
+            });
+
+            this.setState({
+              articles,
+              loaded: true,
+              me: user
+            });
           });
         })
       } else {
@@ -186,6 +207,9 @@ class App extends React.Component {
               </div>
             </div>
           </div>
+          <div className="moya__comments">
+             {this.renderComments(article)}
+           </div>
         </div>
       )
     })
@@ -233,7 +257,7 @@ class App extends React.Component {
             id="message"
             className="moya_comment_message"
             placeholder="コメントを追加..."
-            onChange={this.handleChange}
+            onBlur={this.handleChange}
             name={name}
             value={this.state[`comment-${article.id}`]}
           />
@@ -268,7 +292,7 @@ class App extends React.Component {
             id="message"
             className="moya_message"
             placeholder="最近の出来事を共有..."
-            onChange={this.handleChange}
+            onBlur={this.handleChange}
             name="article"
             value={this.state.article}
           />
