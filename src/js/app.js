@@ -134,26 +134,13 @@ class App extends React.Component {
           docSnapShot.forEach(doc => {
             let data = doc.data();
             data.id = doc.id;
+            articles.push(data);
+          });
 
-            let data_comments = [];
-            const dbCollectionArticlesComments = dbCollectionArticles.doc(data.id).collection('comments').orderBy('created');
-            dbCollectionArticlesComments.get().then(querySnapshot => {
-              querySnapshot.forEach(comment_doc => {
-                let comment_data = comment_doc.data();
-                comment_data.id = comment_doc.id;
-                data_comments.push(comment_data);
-              });
-              return data_comments;
-            }).then(result_data_comments => {
-              data.comments = result_data_comments;
-              articles.push(data);
-
-              this.setState({
-                articles,
-                loaded: true,
-                me: user
-              })
-            });
+          this.setState({
+            articles,
+            loaded: true,
+            me: user
           });
         })
       } else {
@@ -198,9 +185,6 @@ class App extends React.Component {
                 {deleteButton}
               </div>
             </div>
-          </div>
-          <div className="moya__comments">
-            {this.renderComments(article)}
           </div>
         </div>
       )
