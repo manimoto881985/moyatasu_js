@@ -16,7 +16,6 @@ class App extends React.Component {
     super();
     this.state = {
       articles: [],
-      article: '',
       me: null
     }
   }
@@ -27,9 +26,10 @@ class App extends React.Component {
     const article = this.state.article
     if (!article) { return; }
 
-    this.setState({
-      article: ''
+    this.setState({article: ''}, () => {
+      this.setState({article: undefined});
     });
+
     const submit = document.getElementById('submit');
     submit.focus();
 
@@ -66,8 +66,8 @@ class App extends React.Component {
     const comment = this.state[key];
     if (!comment) { return; }
 
-    this.setState({
-      [key]: ''
+    this.setState({[key]: ''}, () => {
+      this.setState({[key]: undefined});
     });
 
     const article = dbCollectionArticles.doc(articleId);
@@ -257,7 +257,7 @@ class App extends React.Component {
             id="message"
             className="moya_comment_message"
             placeholder="コメントを追加..."
-            onChange={this.handleChange}
+            onBlur={this.handleChange}
             name={name}
             value={this.state[`comment-${article.id}`]}
           />
@@ -292,7 +292,7 @@ class App extends React.Component {
             id="message"
             className="moya_message"
             placeholder="最近の出来事を共有..."
-            onChange={this.handleChange}
+            onBlur={this.handleChange}
             name="article"
             value={this.state.article}
           />
