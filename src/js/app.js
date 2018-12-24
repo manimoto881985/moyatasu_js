@@ -36,6 +36,7 @@ class App extends React.Component {
     ref.set({
       message: article,
       created: fieldValue.serverTimestamp(),
+      updated: fieldValue.serverTimestamp(),
       uid: this.state.me ? this.state.me.uid : 'nobody',
       displayName: this.state.me ? this.state.me.displayName : 'noname'
     }).then(function(docRef) {
