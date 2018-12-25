@@ -21,6 +21,7 @@ body {
   background-color: #212529;
   color: #fff;
   font-family: PixelMplus12 Regular;
+  -webkit-font-smoothing: subpixel-antialiased;
 }
 
 code, html, kbd, pre, samp {
