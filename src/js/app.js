@@ -20,7 +20,7 @@ class App extends React.Component {
     }
   }
 
-  addTodo = (e) => {
+  addArticle = (e) => {
     e.preventDefault();
 
     const article = this.state.article
@@ -47,7 +47,7 @@ class App extends React.Component {
     });
   }
 
-  deleteTodo = (e) => {
+  deleteArticle = (e) => {
     if(window.confirm('本当に削除しますか？')){
       dbCollectionArticles.doc(e.target.value).delete().then(function() {
         console.log("Document successfully deleted!");
@@ -170,7 +170,7 @@ class App extends React.Component {
     });
   }
 
-  renderTodoList () {
+  renderArticleList () {
     const articles = this.state.articles.slice();
 
     const articlesLength = articles.length;
@@ -181,13 +181,13 @@ class App extends React.Component {
         DayJS.unix(article.created.seconds).format('YYYY-MM-DD HH:mm:ss') :
         DayJS(new Date()).format('YYYY-MM-DD HH:mm:ss');
       const deleteButton = article.uid === this.state.me.uid ?
-        <button value={article.id} className="moya__delete_link" onClick={this.deleteTodo}>[削除]</button> :
+        <button value={article.id} className="moya__delete_link" onClick={this.deleteArticle}>[削除]</button> :
         null
 
       const content = remarkProcessor.processSync(article.message).contents
 
       return (
-        <div key={index} className="nes-container is-dark with-title moya__item">
+        <div key={index} className="nes-container is-dark with-title moya__article">
           <div className="title moya__title">
             {article.displayName}
           </div>
@@ -286,21 +286,21 @@ class App extends React.Component {
   renderContent () {
     return (
       <section className="moya__container">
-        <form autoComplete="off" className="moya__form" onSubmit={this.addTodo}>
+        <form autoComplete="off" className="moya__form" onSubmit={this.addArticle}>
           <Textarea
             minRows={3}
-            id="message"
-            className="moya_message"
+            id="article"
+            className="moya__article__textarea"
             placeholder="最近の出来事を共有..."
             onChange={this.handleChange}
             name="article"
             value={this.state.article}
           />
           <div className="moya__form__submit">
-            <button type="submit" id="submit" onClick={this.addTodo}>Submit</button>
+            <button type="submit" id="submit" onClick={this.addArticle}>Submit</button>
           </div>
         </form>
-        {this.renderTodoList()}
+        {this.renderArticleList()}
       </section>
     )
   }

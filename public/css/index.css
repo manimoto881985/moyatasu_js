@@ -88,10 +88,6 @@ input[type="text"] {
   width: 100%;
 }
 
-h1 > button {
-  float: right;
-}
-
 .hidden {
   display: none;
 }
@@ -119,11 +115,15 @@ h1 > button {
   text-align: right;
 }
 
-.moya_message {
+.moya__article__textarea {
   width: 100%;
   padding: 0.5rem 1rem;
   border: 4px solid #eee;
   border-radius: 4px;
+}
+
+.moya__article {
+  margin-bottom: 14px;
 }
 
 .moya__content {
@@ -262,7 +262,7 @@ h1 > button {
     padding: 0px;
   }
 
-  .moya__item {
+  .moya__article {
     padding: 18px;
   }
 
@@ -279,8 +279,4 @@ h1 > button {
   .moya__h1_image_first {
     display: none;
   }
-}
-
-.moya__item {
-  margin-bottom: 14px;
 }
