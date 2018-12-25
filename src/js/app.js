@@ -240,7 +240,9 @@ class App extends React.Component {
             </div>
           </div>
           <div className="moya__comment__content">
-            {content}
+            <div className="moya__comment__content__body">
+              {content}
+            </div>
           </div>
         </div>
       )
