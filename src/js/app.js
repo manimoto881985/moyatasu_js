@@ -1,18 +1,14 @@
 import React from 'react';
-import DayJS from 'dayjs';
-import Textarea from 'react-textarea-autosize';
-import remark from 'remark'
-import reactRenderer from 'remark-react'
-import remarkBreaks from 'remark-breaks'
-import remarkExternalLinks from 'remark-external-links'
-import {db, auth, provider, fieldValue} from './firebase'
+import {db, auth, provider, fieldValue} from './firebase';
+import Header from '../components/Header';
+import ArticleForm from '../components/Article/ArticleForm';
+import ArticleList from '../components/Article/ArticleList';
 
 const dbCollectionArticles = db.collection("messages");
 const dbCollectionComments = db.collection("comments");
-const remarkProcessor = remark().use(reactRenderer).use(remarkBreaks).use(remarkExternalLinks);
 
 class App extends React.Component {
-  constructor () {
+  constructor() {
     super();
     this.state = {
       articles: [],
@@ -20,18 +16,15 @@ class App extends React.Component {
     }
   }
 
+  // Article Methods
   addArticle = (e) => {
     e.preventDefault();
 
     const article = this.state.article
     if (!article) { return; }
 
-    this.setState({article: ''}, () => {
-      this.setState({article: undefined});
-    });
-
-    const submit = document.getElementById('submit');
-    submit.focus();
+    this._clearState('article');
+    this._focusSubmit();
 
     const ref = dbCollectionArticles.doc();
     ref.set({
@@ -57,6 +50,7 @@ class App extends React.Component {
     }
   }
 
+  // Comment Methods
   addComment = (e) => {
     e.preventDefault();
 
@@ -66,9 +60,7 @@ class App extends React.Component {
     const comment = this.state[key];
     if (!comment) { return; }
 
-    this.setState({[key]: ''}, () => {
-      this.setState({[key]: undefined});
-    });
+    this._clearState(key);
 
     const article = dbCollectionArticles.doc(articleId);
     const ref = dbCollectionComments.doc();
@@ -112,6 +104,7 @@ class App extends React.Component {
     }
   }
 
+  // Auth Methods
   login = (e) => {
     auth.signInWithPopup(provider);
   }
@@ -120,40 +113,22 @@ class App extends React.Component {
     auth.signOut();
   }
 
+  // State Methods
   handleChange = (e) => {
     const t = e.target;
     this.state[t.name] = t.value;
   }
 
-  componentWillMount () {
+  // Component Methods
+  componentWillMount() {
     auth.onAuthStateChanged(user => {
       if (user) {
         dbCollectionArticles.orderBy('created').onSnapshot((docSnapShot) => {
-
-          let dataComments = [];
           dbCollectionComments.orderBy('created').get().then(querySnapshot => {
-            querySnapshot.forEach(comment_doc => {
-              let comment_data = comment_doc.data();
-              comment_data.id = comment_doc.id;
-              dataComments.push(comment_data);
-            });
-            return dataComments;
-          }).then(resultDataComments => {
-            let comments = {};
-            resultDataComments.forEach(dataComment => {
-              const articleId = dataComment.articleId;
-              if(!comments[articleId]){ comments[articleId] = []; }
-              comments[articleId].push(dataComment);
-            })
-
-            let articles = [];
-
-            docSnapShot.forEach(doc => {
-              let data = doc.data();
-              data.id = doc.id;
-              data.comments = comments[doc.id] || [];
-              articles.push(data);
-            });
+            const dataCommentsHash = this._generateCommentsHash(querySnapshot);
+            return dataCommentsHash
+          }).then(commentsHash => {
+            const articles = this._buildArticles(docSnapShot, commentsHash)
 
             this.setState({
               articles,
@@ -170,146 +145,86 @@ class App extends React.Component {
     });
   }
 
-  renderArticleList () {
-    const articles = this.state.articles.slice();
+  // Private Methods
+    // common
+    _clearState(key) {
+      this.setState({[key]: ''}, () => {
+        this.setState({[key]: undefined});
+      });
+    }
 
-    const articlesLength = articles.length;
-    const ListItem = articles.reverse().map((article, index) => {
-      const imageIndex = ((articlesLength - index) % 45) + 1;
-      const imagePath = `images/${imageIndex}.gif`;
-      const created = article.created ?
-        DayJS.unix(article.created.seconds).format('YYYY-MM-DD HH:mm:ss') :
-        DayJS(new Date()).format('YYYY-MM-DD HH:mm:ss');
-      const deleteButton = article.uid === this.state.me.uid ?
-        <button value={article.id} className="moya__delete_link" onClick={this.deleteArticle}>[削除]</button> :
-        null
+    // addArticle
+    _focusSubmit() {
+      document.getElementById('submit').focus();
+    }
 
-      const content = remarkProcessor.processSync(article.message).contents
+    // componentWillMount ()
+    _generateCommentsHash(querySnapshot) {
+      let comments = {};
 
+      const commentsArray = this._generateCommentsArray(querySnapshot)
+      commentsArray.forEach(dataComment => {
+        const articleId = dataComment.articleId;
+        if(!comments[articleId]){ comments[articleId] = []; }
+        comments[articleId].push(dataComment);
+      });
+
+      return comments;
+    }
+
+    _generateCommentsArray(querySnapshot) {
+      let dataComments = [];
+
+      querySnapshot.forEach(comment_doc => {
+        let comment_data = comment_doc.data();
+        comment_data.id = comment_doc.id;
+        dataComments.push(comment_data);
+      });
+
+      return dataComments;
+    }
+
+    _buildArticles(docSnapShot, commentsHash) {
+      let articles = [];
+
+      docSnapShot.forEach(doc => {
+        let data = doc.data();
+        data.id = doc.id;
+        data.comments = commentsHash[doc.id] || [];
+        articles.push(data);
+      });
+
+      return articles;
+    }
+
+    // render ()
+    _renderContent() {
       return (
-        <div key={index} className="nes-container is-dark with-title moya__article">
-          <div className="title moya__title">
-            {article.displayName}
-          </div>
-          <div className="moya__content">
-            <div className="moya__user_image_container">
-              <img src={imagePath} className="moya__user_image" alt="icon"/>
-            </div>
-            <div className="moya__content_text">
-              <div>
-                {content}
-              </div>
-              <div className="moya__datetime">
-                {created}
-                {deleteButton}
-              </div>
-            </div>
-          </div>
-          <div className="moya__comments">
-             {this.renderComments(article)}
-           </div>
-        </div>
-      )
-    })
-
-    return (
-      <div>
-        {ListItem}
-      </div>
-    )
-  }
-
-  renderComments (article) {
-    const name = `comment-${article.id}`
-    const ListComment = article.comments.map((comment, index) => {
-      const created = comment.created ?
-        DayJS.unix(comment.created.seconds).format('YYYY-MM-DD HH:mm:ss') :
-        DayJS(new Date()).format('YYYY-MM-DD HH:mm:ss');
-      const deleteButton = comment.uid === this.state.me.uid ?
-        <button value={comment.id} data-article-id={article.id} className="moya__delete_link" onClick={this.deleteComment}>[削除]</button> :
-        null
-      const content = remarkProcessor.processSync(comment.message).contents
-
-      return (
-        <div key={index} className="moya__comment">
-          <div className="moya__comment__header">
-            <div className="moya__comment__title">{comment.displayName}</div>
-            <div className="moya__comment__datetime">
-              {created}
-              {deleteButton}
-            </div>
-          </div>
-          <div className="moya__comment__content">
-            <div className="moya__comment__content__body">
-              {content}
-            </div>
-          </div>
-        </div>
-      )
-    })
-
-    return (
-      <div>
-        {ListComment}
-        <form autoComplete="off" className="moya__comment__form" onSubmit={this.addComment}>
-          <Textarea
-            minRows={1}
-            id="message"
-            className="moya_comment_message"
-            placeholder="コメントを追加..."
-            onChange={this.handleChange}
-            name={name}
-            value={this.state[`comment-${article.id}`]}
+        <section className="moya__container">
+          <ArticleForm
+            addArticle={this.addArticle}
+            handleChange={this.handleChange}
+            stateArticle={this.state.article}
           />
-          <div className="moya__comment__form__submit">
-            <button type="submit" id="submit" data-article-id={article.id} onClick={this.addComment}>Submit</button>
-          </div>
-        </form>
-      </div>
-    )
-  }
-
-  renderHeader () {
-    return (
-      <header className="moya__header">
-        <h1>
-          <img src="images/obousan.gif" className="moya__h1_image moya__h1_image_first" alt="obousan"/>
-          MOYAMOYA GUGUTASU
-          <img src="images/samurai.gif" className="moya__h1_image moya__h1_image_last" alt="samurai"/>
-        </h1>
-        <button onClick={this.login} className={this.state.me ? 'hidden' : undefined}>Login</button>
-        <button onClick={this.logout} className={!this.state.me ? 'hidden' : undefined}>Logout</button>
-      </header>
-    )
-  }
-
-  renderContent () {
-    return (
-      <section className="moya__container">
-        <form autoComplete="off" className="moya__form" onSubmit={this.addArticle}>
-          <Textarea
-            minRows={3}
-            id="article"
-            className="moya__article__textarea"
-            placeholder="最近の出来事を共有..."
-            onChange={this.handleChange}
-            name="article"
-            value={this.state.article}
+          <ArticleList
+            articles={this.state.articles.slice()}
+            deleteArticle={this.deleteArticle}
+            addComment={this.addComment}
+            deleteComment={this.deleteComment}
+            handleChange={this.handleChange}
+            state={this.state}
+            stateMeUid={this.state.me.uid}
           />
-          <div className="moya__form__submit">
-            <button type="submit" id="submit" onClick={this.addArticle}>Submit</button>
-          </div>
-        </form>
-        {this.renderArticleList()}
-      </section>
-    )
-  }
+        </section>
+      )
+    }
 
-  render () {
+  // Render Method
+  render() {
     return (
       <div className="App">
-        {this.renderHeader()}
-        {this.state.me && this.renderContent()}
+        <Header login={this.login} logout={this.logout} stateMe={this.state.me}/>
+        {this.state.me && this._renderContent()}
       </div>
     )
   }
