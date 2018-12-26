@@ -1,15 +1,11 @@
 import React from 'react';
-import DayJS from 'dayjs';
-import Textarea from 'react-textarea-autosize';
-import remark from 'remark'
-import reactRenderer from 'remark-react'
-import remarkBreaks from 'remark-breaks'
-import remarkExternalLinks from 'remark-external-links'
-import {db, auth, provider, fieldValue} from './firebase'
+import {db, auth, provider, fieldValue} from './firebase';
+import Header from '../components/Header';
+import ArticleForm from '../components/Article/ArticleForm';
+import ArticleList from '../components/Article/ArticleList';
 
 const dbCollectionArticles = db.collection("messages");
 const dbCollectionComments = db.collection("comments");
-const remarkProcessor = remark().use(reactRenderer).use(remarkBreaks).use(remarkExternalLinks);
 
 class App extends React.Component {
   constructor () {
@@ -170,137 +166,23 @@ class App extends React.Component {
     });
   }
 
-  renderArticleList () {
-    const articles = this.state.articles.slice();
-
-    const articlesLength = articles.length;
-    const ListItem = articles.reverse().map((article, index) => {
-      const imageIndex = ((articlesLength - index) % 45) + 1;
-      const imagePath = `images/${imageIndex}.gif`;
-      const created = article.created ?
-        DayJS.unix(article.created.seconds).format('YYYY-MM-DD HH:mm:ss') :
-        DayJS(new Date()).format('YYYY-MM-DD HH:mm:ss');
-      const deleteButton = article.uid === this.state.me.uid ?
-        <button value={article.id} className="moya__delete_link" onClick={this.deleteArticle}>[削除]</button> :
-        null
-
-      const content = remarkProcessor.processSync(article.message).contents
-
-      return (
-        <div key={index} className="nes-container is-dark with-title moya__article">
-          <div className="title moya__title">
-            {article.displayName}
-          </div>
-          <div className="moya__content">
-            <div className="moya__user_image_container">
-              <img src={imagePath} className="moya__user_image" alt="icon"/>
-            </div>
-            <div className="moya__content_text">
-              <div>
-                {content}
-              </div>
-              <div className="moya__datetime">
-                {created}
-                {deleteButton}
-              </div>
-            </div>
-          </div>
-          <div className="moya__comments">
-             {this.renderComments(article)}
-           </div>
-        </div>
-      )
-    })
-
-    return (
-      <div>
-        {ListItem}
-      </div>
-    )
-  }
-
-  renderComments (article) {
-    const name = `comment-${article.id}`
-    const ListComment = article.comments.map((comment, index) => {
-      const created = comment.created ?
-        DayJS.unix(comment.created.seconds).format('YYYY-MM-DD HH:mm:ss') :
-        DayJS(new Date()).format('YYYY-MM-DD HH:mm:ss');
-      const deleteButton = comment.uid === this.state.me.uid ?
-        <button value={comment.id} data-article-id={article.id} className="moya__delete_link" onClick={this.deleteComment}>[削除]</button> :
-        null
-      const content = remarkProcessor.processSync(comment.message).contents
-
-      return (
-        <div key={index} className="moya__comment">
-          <div className="moya__comment__header">
-            <div className="moya__comment__title">{comment.displayName}</div>
-            <div className="moya__comment__datetime">
-              {created}
-              {deleteButton}
-            </div>
-          </div>
-          <div className="moya__comment__content">
-            <div className="moya__comment__content__body">
-              {content}
-            </div>
-          </div>
-        </div>
-      )
-    })
-
-    return (
-      <div>
-        {ListComment}
-        <form autoComplete="off" className="moya__comment__form" onSubmit={this.addComment}>
-          <Textarea
-            minRows={1}
-            id="message"
-            className="moya_comment_message"
-            placeholder="コメントを追加..."
-            onChange={this.handleChange}
-            name={name}
-            value={this.state[`comment-${article.id}`]}
-          />
-          <div className="moya__comment__form__submit">
-            <button type="submit" id="submit" data-article-id={article.id} onClick={this.addComment}>Submit</button>
-          </div>
-        </form>
-      </div>
-    )
-  }
-
-  renderHeader () {
-    return (
-      <header className="moya__header">
-        <h1>
-          <img src="images/obousan.gif" className="moya__h1_image moya__h1_image_first" alt="obousan"/>
-          MOYAMOYA GUGUTASU
-          <img src="images/samurai.gif" className="moya__h1_image moya__h1_image_last" alt="samurai"/>
-        </h1>
-        <button onClick={this.login} className={this.state.me ? 'hidden' : undefined}>Login</button>
-        <button onClick={this.logout} className={!this.state.me ? 'hidden' : undefined}>Logout</button>
-      </header>
-    )
-  }
-
   renderContent () {
     return (
       <section className="moya__container">
-        <form autoComplete="off" className="moya__form" onSubmit={this.addArticle}>
-          <Textarea
-            minRows={3}
-            id="article"
-            className="moya__article__textarea"
-            placeholder="最近の出来事を共有..."
-            onChange={this.handleChange}
-            name="article"
-            value={this.state.article}
-          />
-          <div className="moya__form__submit">
-            <button type="submit" id="submit" onClick={this.addArticle}>Submit</button>
-          </div>
-        </form>
-        {this.renderArticleList()}
+        <ArticleForm
+          addArticle={this.addArticle}
+          handleChange={this.handleChange}
+          stateArticle={this.state.article}
+        />
+        <ArticleList
+          articles={this.state.articles.slice()}
+          deleteArticle={this.deleteArticle}
+          addComment={this.addComment}
+          deleteComment={this.deleteComment}
+          handleChange={this.handleChange}
+          state={this.state}
+          stateMeUid={this.state.me.uid}
+        />
       </section>
     )
   }
@@ -308,7 +190,7 @@ class App extends React.Component {
   render () {
     return (
       <div className="App">
-        {this.renderHeader()}
+        <Header login={this.login} logout={this.logout} stateMe={this.state.me}/>
         {this.state.me && this.renderContent()}
       </div>
     )
