@@ -8,7 +8,7 @@ const dbCollectionArticles = db.collection("messages");
 const dbCollectionComments = db.collection("comments");
 
 class App extends React.Component {
-  constructor () {
+  constructor() {
     super();
     this.state = {
       articles: [],
@@ -16,18 +16,15 @@ class App extends React.Component {
     }
   }
 
+  // Article Methods
   addArticle = (e) => {
     e.preventDefault();
 
     const article = this.state.article
     if (!article) { return; }
 
-    this.setState({article: ''}, () => {
-      this.setState({article: undefined});
-    });
-
-    const submit = document.getElementById('submit');
-    submit.focus();
+    this._clearState('article');
+    this._focusSubmit();
 
     const ref = dbCollectionArticles.doc();
     ref.set({
@@ -53,6 +50,7 @@ class App extends React.Component {
     }
   }
 
+  // Comment Methods
   addComment = (e) => {
     e.preventDefault();
 
@@ -62,9 +60,7 @@ class App extends React.Component {
     const comment = this.state[key];
     if (!comment) { return; }
 
-    this.setState({[key]: ''}, () => {
-      this.setState({[key]: undefined});
-    });
+    this._clearState(key);
 
     const article = dbCollectionArticles.doc(articleId);
     const ref = dbCollectionComments.doc();
@@ -108,6 +104,7 @@ class App extends React.Component {
     }
   }
 
+  // Auth Methods
   login = (e) => {
     auth.signInWithPopup(provider);
   }
@@ -116,40 +113,22 @@ class App extends React.Component {
     auth.signOut();
   }
 
+  // State Methods
   handleChange = (e) => {
     const t = e.target;
     this.state[t.name] = t.value;
   }
 
-  componentWillMount () {
+  // Component Methods
+  componentWillMount() {
     auth.onAuthStateChanged(user => {
       if (user) {
         dbCollectionArticles.orderBy('created').onSnapshot((docSnapShot) => {
-
-          let dataComments = [];
           dbCollectionComments.orderBy('created').get().then(querySnapshot => {
-            querySnapshot.forEach(comment_doc => {
-              let comment_data = comment_doc.data();
-              comment_data.id = comment_doc.id;
-              dataComments.push(comment_data);
-            });
-            return dataComments;
-          }).then(resultDataComments => {
-            let comments = {};
-            resultDataComments.forEach(dataComment => {
-              const articleId = dataComment.articleId;
-              if(!comments[articleId]){ comments[articleId] = []; }
-              comments[articleId].push(dataComment);
-            })
-
-            let articles = [];
-
-            docSnapShot.forEach(doc => {
-              let data = doc.data();
-              data.id = doc.id;
-              data.comments = comments[doc.id] || [];
-              articles.push(data);
-            });
+            const dataCommentsHash = this._generateCommentsHash(querySnapshot);
+            return dataCommentsHash
+          }).then(commentsHash => {
+            const articles = this._buildArticles(docSnapShot, commentsHash)
 
             this.setState({
               articles,
@@ -166,32 +145,86 @@ class App extends React.Component {
     });
   }
 
-  renderContent () {
-    return (
-      <section className="moya__container">
-        <ArticleForm
-          addArticle={this.addArticle}
-          handleChange={this.handleChange}
-          stateArticle={this.state.article}
-        />
-        <ArticleList
-          articles={this.state.articles.slice()}
-          deleteArticle={this.deleteArticle}
-          addComment={this.addComment}
-          deleteComment={this.deleteComment}
-          handleChange={this.handleChange}
-          state={this.state}
-          stateMeUid={this.state.me.uid}
-        />
-      </section>
-    )
-  }
+  // Private Methods
+    // common
+    _clearState(key) {
+      this.setState({[key]: ''}, () => {
+        this.setState({[key]: undefined});
+      });
+    }
 
-  render () {
+    // addArticle
+    _focusSubmit() {
+      document.getElementById('submit').focus();
+    }
+
+    // componentWillMount ()
+    _generateCommentsHash(querySnapshot) {
+      let comments = {};
+
+      const commentsArray = this._generateCommentsArray(querySnapshot)
+      commentsArray.forEach(dataComment => {
+        const articleId = dataComment.articleId;
+        if(!comments[articleId]){ comments[articleId] = []; }
+        comments[articleId].push(dataComment);
+      });
+
+      return comments;
+    }
+
+    _generateCommentsArray(querySnapshot) {
+      let dataComments = [];
+
+      querySnapshot.forEach(comment_doc => {
+        let comment_data = comment_doc.data();
+        comment_data.id = comment_doc.id;
+        dataComments.push(comment_data);
+      });
+
+      return dataComments;
+    }
+
+    _buildArticles(docSnapShot, commentsHash) {
+      let articles = [];
+
+      docSnapShot.forEach(doc => {
+        let data = doc.data();
+        data.id = doc.id;
+        data.comments = commentsHash[doc.id] || [];
+        articles.push(data);
+      });
+
+      return articles;
+    }
+
+    // render ()
+    _renderContent() {
+      return (
+        <section className="moya__container">
+          <ArticleForm
+            addArticle={this.addArticle}
+            handleChange={this.handleChange}
+            stateArticle={this.state.article}
+          />
+          <ArticleList
+            articles={this.state.articles.slice()}
+            deleteArticle={this.deleteArticle}
+            addComment={this.addComment}
+            deleteComment={this.deleteComment}
+            handleChange={this.handleChange}
+            state={this.state}
+            stateMeUid={this.state.me.uid}
+          />
+        </section>
+      )
+    }
+
+  // Render Method
+  render() {
     return (
       <div className="App">
         <Header login={this.login} logout={this.logout} stateMe={this.state.me}/>
-        {this.state.me && this.renderContent()}
+        {this.state.me && this._renderContent()}
       </div>
     )
   }

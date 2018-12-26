@@ -20,7 +20,7 @@ const CommentForm = ({
         value={stateComment}
       />
       <div className="moya__comment__form__submit">
-        <button type="submit" id="submit" data-article-id={article.id} onClick={addComment}>Submit</button>
+        <button type="submit" data-article-id={article.id} onClick={addComment}>Submit</button>
       </div>
     </form>
   )
