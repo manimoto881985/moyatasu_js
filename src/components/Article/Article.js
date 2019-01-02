@@ -4,6 +4,7 @@ import remark from 'remark'
 import reactRenderer from 'remark-react'
 import remarkBreaks from 'remark-breaks'
 import remarkExternalLinks from 'remark-external-links'
+import ExpandCollapse from 'react-expand-collapse';
 import CommentList from '../Comment/CommentList'
 import CommentForm from '../Comment/CommentForm'
 
@@ -34,9 +35,14 @@ const Article = ({
           <img src={imagePath} className="moya__user_image" alt="icon"/>
         </div>
         <div className="moya__content_text">
-          <div>
+          <ExpandCollapse
+            previewHeight="480px"
+            expandText="続きを読む"
+            collapseText="閉じる"
+            ellipsis={false}
+          >
             {content}
-          </div>
+          </ExpandCollapse>
           <div className="moya__datetime">
             {created}
             {deleteButton}

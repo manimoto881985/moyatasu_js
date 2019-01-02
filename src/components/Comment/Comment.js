@@ -4,6 +4,7 @@ import remark from 'remark'
 import reactRenderer from 'remark-react'
 import remarkBreaks from 'remark-breaks'
 import remarkExternalLinks from 'remark-external-links'
+import ExpandCollapse from 'react-expand-collapse';
 const remarkProcessor = remark().use(reactRenderer).use(remarkBreaks).use(remarkExternalLinks);
 
 const Comment = ({
@@ -30,7 +31,14 @@ const Comment = ({
       </div>
       <div className="moya__comment__content">
         <div className="moya__comment__content__body">
-          {content}
+          <ExpandCollapse
+            previewHeight="320px"
+            expandText="続きを読む"
+            collapseText="閉じる"
+            ellipsis={false}
+          >
+            {content}
+          </ExpandCollapse>
         </div>
       </div>
     </div>
