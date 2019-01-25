@@ -162,26 +162,15 @@ class App extends React.Component {
     _generateCommentsHash(querySnapshot) {
       let comments = {};
 
-      const commentsArray = this._generateCommentsArray(querySnapshot)
-      commentsArray.forEach(dataComment => {
-        const articleId = dataComment.articleId;
-        if(!comments[articleId]){ comments[articleId] = []; }
-        comments[articleId].push(dataComment);
-      });
-
-      return comments;
-    }
-
-    _generateCommentsArray(querySnapshot) {
-      let dataComments = [];
-
       querySnapshot.forEach(comment_doc => {
         let comment_data = comment_doc.data();
         comment_data.id = comment_doc.id;
-        dataComments.push(comment_data);
+        const articleId = comment_data.articleId;
+        if(!comments[articleId]){ comments[articleId] = []; }
+        comments[articleId].push(comment_data);
       });
 
-      return dataComments;
+      return comments;
     }
 
     _buildArticles(docSnapShot, commentsHash) {
