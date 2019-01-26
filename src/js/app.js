@@ -16,17 +16,6 @@ class App extends React.Component {
     }
   }
 
-  // Article Methods
-  deleteArticle = (e) => {
-    if(window.confirm('本当に削除しますか？')){
-      dbCollectionArticles.doc(e.target.value).delete().then(function() {
-        console.log("Document successfully deleted!");
-      }).catch(function(error) {
-        console.error("Error removeing document: ", error);
-      });
-    }
-  }
-
   // Component Methods
   componentWillMount() {
     auth.onAuthStateChanged(user => {
@@ -91,7 +80,6 @@ class App extends React.Component {
           />
           <ArticleList
             articles={this.state.articles.slice()}
-            deleteArticle={this.deleteArticle}
             state={this.state}
             stateMe={this.state.me}
           />
