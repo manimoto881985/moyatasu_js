@@ -17,7 +17,7 @@ class App extends React.Component {
   }
 
   // Component Methods
-  componentWillMount() {
+  componentDidMount() {
     auth.onAuthStateChanged(user => {
       if (user) {
         dbCollectionArticles.orderBy('created').onSnapshot((docSnapShot) => {
