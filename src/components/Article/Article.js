@@ -13,14 +13,14 @@ const remarkProcessor = remark().use(reactRenderer).use(remarkBreaks).use(remark
 const Article = ({
   article, articlesLength, index,
   deleteArticle, addComment, deleteComment, handleChange,
-  stateMeUid, stateMe, stateComment
+  stateMe, stateComment
 }) => {
   const imageIndex = ((articlesLength - index) % 45) + 1;
   const imagePath = `images/${imageIndex}.gif`;
   const created = article.created ?
     DayJS.unix(article.created.seconds).format('YYYY-MM-DD HH:mm:ss') :
     DayJS(new Date()).format('YYYY-MM-DD HH:mm:ss');
-  const deleteButton = article.uid === stateMeUid ?
+  const deleteButton = article.uid === stateMe.uid ?
     <button value={article.id} className="moya__delete_link" onClick={deleteArticle}>[削除]</button> :
     null
   const content = remarkProcessor.processSync(article.message).contents
@@ -54,7 +54,7 @@ const Article = ({
           comments={article.comments}
           articleId={article.id}
           deleteComment={deleteComment}
-          stateMeUid={stateMeUid}
+          stateMe={stateMe}
         />
         <CommentForm
           article={article}

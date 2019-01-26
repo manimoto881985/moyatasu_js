@@ -131,7 +131,6 @@ class App extends React.Component {
             deleteComment={this.deleteComment}
             handleChange={this.handleChange}
             state={this.state}
-            stateMeUid={this.state.me.uid}
             stateMe={this.state.me}
           />
         </section>

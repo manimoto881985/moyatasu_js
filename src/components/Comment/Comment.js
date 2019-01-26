@@ -10,12 +10,12 @@ const remarkProcessor = remark().use(reactRenderer).use(remarkBreaks).use(remark
 const Comment = ({
   comment, articleId,
   deleteComment,
-  stateMeUid
+  stateMe
 }) => {
   const created = comment.created ?
     DayJS.unix(comment.created.seconds).format('YYYY-MM-DD HH:mm:ss') :
     DayJS(new Date()).format('YYYY-MM-DD HH:mm:ss');
-  const deleteButton = comment.uid === stateMeUid ?
+  const deleteButton = comment.uid === stateMe.uid ?
     <button value={comment.id} data-article-id={articleId} className="moya__delete_link" onClick={deleteComment}>[削除]</button> :
     null
   const content = remarkProcessor.processSync(comment.message).contents

@@ -4,7 +4,7 @@ import Comment from '../Comment/Comment'
 const CommentList = ({
   comments, articleId,
   deleteComment,
-  stateMeUid
+  stateMe
 }) => (
   <div>
     {comments.map(comment =>
@@ -13,7 +13,7 @@ const CommentList = ({
         comment={comment}
         articleId={articleId}
         deleteComment={deleteComment}
-        stateMeUid={stateMeUid}
+        stateMe={stateMe}
       />
     )}
   </div>
