@@ -17,29 +17,6 @@ class App extends React.Component {
   }
 
   // Article Methods
-  addArticle = (e) => {
-    e.preventDefault();
-
-    const article = this.state.article
-    if (!article) { return; }
-
-    this._clearState('article');
-    this._focusSubmit();
-
-    const ref = dbCollectionArticles.doc();
-    ref.set({
-      message: article,
-      created: fieldValue.serverTimestamp(),
-      updated: fieldValue.serverTimestamp(),
-      uid: this.state.me ? this.state.me.uid : 'nobody',
-      displayName: this.state.me ? this.state.me.displayName : 'noname'
-    }).then(function(docRef) {
-      console.log(docRef);
-    }).catch(function(error) {
-      console.error("Error adding document: ", error);
-    });
-  }
-
   deleteArticle = (e) => {
     if(window.confirm('本当に削除しますか？')){
       dbCollectionArticles.doc(e.target.value).delete().then(function() {
@@ -144,11 +121,6 @@ class App extends React.Component {
       });
     }
 
-    // addArticle
-    _focusSubmit() {
-      document.getElementById('submit').focus();
-    }
-
     // componentWillMount ()
     _generateCommentsHash(querySnapshot) {
       let comments = {};
@@ -182,9 +154,7 @@ class App extends React.Component {
       return (
         <section className="moya__container">
           <ArticleForm
-            addArticle={this.addArticle}
-            handleChange={this.handleChange}
-            stateArticle={this.state.article}
+            stateMe={this.state.me}
           />
           <ArticleList
             articles={this.state.articles.slice()}
