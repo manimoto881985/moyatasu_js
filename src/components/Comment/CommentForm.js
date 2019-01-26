@@ -8,22 +8,16 @@ const dbCollectionComments = db.collection("comments");
 class CommentForm extends React.Component {
   constructor() {
     super();
-    this.state = {
-      comment: ''
-    }
+    this.input = React.createRef();
   }
 
   addComment = (e) => {
     e.preventDefault();
 
     const articleId = e.target.dataset.articleId;
-    const textareaId = e.target.dataset.textareaId;
-    const comment = this.state.comment;
+    const comment = this.input.current.value;
     if (!comment) { return; }
-
-    console.log(e.target);
-    this._clearState('comment');
-    this._clearCommentTextarea(textareaId);
+    this.input.current.value = '';
 
     const article = dbCollectionArticles.doc(articleId);
     const ref = dbCollectionComments.doc();
@@ -47,38 +41,18 @@ class CommentForm extends React.Component {
     });
   }
 
-  handleChange = (e) => {
-    const t = e.target;
-    this.state.comment = t.value;
-  }
-
-  // Private Methods
-    _clearState(key) {
-      this.setState({[key]: ''}, () => {
-        this.setState({[key]: undefined});
-      });
-    }
-
-    _clearCommentTextarea(textareaId) {
-      document.getElementById(textareaId).value = '';
-    }
-
   render() {
     const textareaName = `comment-${this.props.article.id}`
 
     return (
-      <form autoComplete="off" className="moya__comment__form"
-        data-article-id={this.props.article.id}
-        data-textarea-id={textareaName}
-        onSubmit={this.addComment}
-      >
+      <form autoComplete="off" className="moya__comment__form" data-article-id={this.props.article.id} onSubmit={this.addComment}>
         <Textarea
           minRows={1}
           id={textareaName}
           className="moya_comment_message"
           placeholder="コメントを追加..."
-          onChange={this.handleChange}
           name={textareaName}
+          inputRef={this.input}
         />
         <div className="moya__comment__form__submit">
           <button type="submit">Submit</button>

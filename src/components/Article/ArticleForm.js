@@ -7,20 +7,16 @@ const dbCollectionArticles = db.collection("messages");
 class ArticleForm extends React.Component {
   constructor() {
     super();
-    this.state = {
-      article: ''
-    }
+    this.input = React.createRef();
   }
 
   addArticle = (e) => {
     e.preventDefault();
+    const article = this.input.current.value;
 
-    const article = this.state.article
     if (!article) { return; }
-
-    this._clearState('article');
-    this._clearArticleTextarea();
     this._focusSubmit();
+    this.input.current.value = '';
 
     const ref = dbCollectionArticles.doc();
     ref.set({
@@ -36,24 +32,9 @@ class ArticleForm extends React.Component {
     });
   }
 
-  handleChange = (e) => {
-    const t = e.target;
-    this.state.article = t.value;
-  }
-
   // Private Methods
     _focusSubmit() {
       document.getElementById('submit').focus();
-    }
-
-    _clearState(key) {
-      this.setState({[key]: ''}, () => {
-        this.setState({[key]: undefined});
-      });
-    }
-
-    _clearArticleTextarea() {
-      document.getElementById('article').value = '';
     }
 
   render() {
@@ -64,11 +45,11 @@ class ArticleForm extends React.Component {
           id="article"
           className="moya__article__textarea"
           placeholder="最近の出来事を共有..."
-          onChange={this.handleChange}
           name="article"
+          inputRef={this.input}
         />
         <div className="moya__form__submit">
-          <button type="submit" id="submit" onClick={this.addArticle}>Submit</button>
+          <button type="submit" id="submit">Submit</button>
         </div>
       </form>
     )
