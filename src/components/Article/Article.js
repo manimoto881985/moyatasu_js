@@ -12,8 +12,8 @@ const remarkProcessor = remark().use(reactRenderer).use(remarkBreaks).use(remark
 
 const Article = ({
   article, articlesLength, index,
-  deleteArticle, addComment, deleteComment, handleChange,
-  stateMe, stateComment
+  deleteArticle, deleteComment,
+  stateMe
 }) => {
   const imageIndex = ((articlesLength - index) % 45) + 1;
   const imagePath = `images/${imageIndex}.gif`;

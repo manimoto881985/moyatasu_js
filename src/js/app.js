@@ -49,12 +49,6 @@ class App extends React.Component {
     }
   }
 
-  // State Methods
-  handleChange = (e) => {
-    const t = e.target;
-    this.state[t.name] = t.value;
-  }
-
   // Component Methods
   componentWillMount() {
     auth.onAuthStateChanged(user => {
@@ -82,13 +76,6 @@ class App extends React.Component {
   }
 
   // Private Methods
-    // common
-    _clearState(key) {
-      this.setState({[key]: ''}, () => {
-        this.setState({[key]: undefined});
-      });
-    }
-
     // componentWillMount ()
     _generateCommentsHash(querySnapshot) {
       let comments = {};
@@ -127,9 +114,7 @@ class App extends React.Component {
           <ArticleList
             articles={this.state.articles.slice()}
             deleteArticle={this.deleteArticle}
-            addComment={this.addComment}
             deleteComment={this.deleteComment}
-            handleChange={this.handleChange}
             state={this.state}
             stateMe={this.state.me}
           />
