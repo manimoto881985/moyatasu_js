@@ -1,5 +1,5 @@
 import React from 'react';
-import {db, auth, provider, fieldValue} from './firebase';
+import {db, auth, fieldValue} from './firebase';
 import Header from '../components/Header';
 import ArticleForm from '../components/Article/ArticleForm';
 import ArticleList from '../components/Article/ArticleList';
@@ -104,15 +104,6 @@ class App extends React.Component {
     }
   }
 
-  // Auth Methods
-  login = (e) => {
-    auth.signInWithPopup(provider);
-  }
-
-  logout = (e) => {
-    auth.signOut();
-  }
-
   // State Methods
   handleChange = (e) => {
     const t = e.target;
@@ -212,7 +203,7 @@ class App extends React.Component {
   render() {
     return (
       <div className="App">
-        <Header login={this.login} logout={this.logout} stateMe={this.state.me}/>
+        <Header stateMe={this.state.me}/>
         {this.state.me && this._renderContent()}
       </div>
     )
