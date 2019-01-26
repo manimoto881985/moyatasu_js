@@ -4,7 +4,7 @@ import Article from '../Article/Article'
 const ArticleList = ({
   articles,
   deleteArticle, addComment, deleteComment, handleChange,
-  state, stateMeUid
+  state, stateMeUid, stateMe
 }) => {
   const articlesLength = articles.length;
 
@@ -21,6 +21,7 @@ const ArticleList = ({
           deleteComment={deleteComment}
           handleChange={handleChange}
           stateMeUid={stateMeUid}
+          stateMe={stateMe}
           stateComment={state[`comment-${article.id}`]}
         />
       )

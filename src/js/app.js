@@ -28,38 +28,6 @@ class App extends React.Component {
   }
 
   // Comment Methods
-  addComment = (e) => {
-    e.preventDefault();
-
-    const articleId = e.target.dataset.articleId;
-    const key = `comment-${articleId}`
-
-    const comment = this.state[key];
-    if (!comment) { return; }
-
-    this._clearState(key);
-
-    const article = dbCollectionArticles.doc(articleId);
-    const ref = dbCollectionComments.doc();
-    ref.set({
-      articleId: articleId,
-      message: comment,
-      created: fieldValue.serverTimestamp(),
-      uid: this.state.me ? this.state.me.uid : 'nobody',
-      displayName: this.state.me ? this.state.me.displayName : 'noname'
-    }).then(function(docRef) {
-      article.update({
-        updated: fieldValue.serverTimestamp()
-      }).then(function(docRef) {
-        console.log(docRef);
-      }).catch(function(error) {
-        console.error("Error update document: ", error);
-      });
-    }).catch(function(error) {
-      console.error("Error adding document: ", error);
-    });
-  }
-
   deleteComment = (e) => {
     if(window.confirm('本当に削除しますか？')){
       const commentId = e.target.value;
@@ -164,6 +132,7 @@ class App extends React.Component {
             handleChange={this.handleChange}
             state={this.state}
             stateMeUid={this.state.me.uid}
+            stateMe={this.state.me}
           />
         </section>
       )

@@ -13,7 +13,7 @@ const remarkProcessor = remark().use(reactRenderer).use(remarkBreaks).use(remark
 const Article = ({
   article, articlesLength, index,
   deleteArticle, addComment, deleteComment, handleChange,
-  stateMeUid, stateComment
+  stateMeUid, stateMe, stateComment
 }) => {
   const imageIndex = ((articlesLength - index) % 45) + 1;
   const imagePath = `images/${imageIndex}.gif`;
@@ -58,9 +58,7 @@ const Article = ({
         />
         <CommentForm
           article={article}
-          addComment={addComment}
-          handleChange={handleChange}
-          stateComment={stateComment}
+          stateMe={stateMe}
         />
       </div>
     </div>
