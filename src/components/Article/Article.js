@@ -12,7 +12,7 @@ const remarkProcessor = remark().use(reactRenderer).use(remarkBreaks).use(remark
 
 const Article = ({
   article, articlesLength, index,
-  deleteArticle, deleteComment,
+  deleteArticle,
   stateMe
 }) => {
   const imageIndex = ((articlesLength - index) % 45) + 1;
@@ -53,7 +53,6 @@ const Article = ({
         <CommentList
           comments={article.comments}
           articleId={article.id}
-          deleteComment={deleteComment}
           stateMe={stateMe}
         />
         <CommentForm

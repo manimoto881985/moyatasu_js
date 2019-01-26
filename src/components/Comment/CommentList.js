@@ -3,7 +3,6 @@ import Comment from '../Comment/Comment'
 
 const CommentList = ({
   comments, articleId,
-  deleteComment,
   stateMe
 }) => (
   <div>
@@ -12,7 +11,6 @@ const CommentList = ({
         key={comment.id}
         comment={comment}
         articleId={articleId}
-        deleteComment={deleteComment}
         stateMe={stateMe}
       />
     )}

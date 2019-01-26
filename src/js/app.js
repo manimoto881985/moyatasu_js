@@ -27,28 +27,6 @@ class App extends React.Component {
     }
   }
 
-  // Comment Methods
-  deleteComment = (e) => {
-    if(window.confirm('本当に削除しますか？')){
-      const commentId = e.target.value;
-      const articleId = e.target.dataset.articleId;
-      const article = dbCollectionArticles.doc(articleId);
-      const comment = dbCollectionComments.doc(commentId);
-
-      comment.delete().then(function() {
-        article.update({
-          deletedCommentAt: fieldValue.serverTimestamp()
-        }).then(function(docRef) {
-          console.log(docRef);
-        }).catch(function(error) {
-          console.error("Error update document: ", error);
-        });
-      }).catch(function(error) {
-        console.error("Error removeing comment: ", error);
-      });
-    }
-  }
-
   // Component Methods
   componentWillMount() {
     auth.onAuthStateChanged(user => {
@@ -114,7 +92,6 @@ class App extends React.Component {
           <ArticleList
             articles={this.state.articles.slice()}
             deleteArticle={this.deleteArticle}
-            deleteComment={this.deleteComment}
             state={this.state}
             stateMe={this.state.me}
           />

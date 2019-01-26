@@ -3,7 +3,7 @@ import Article from '../Article/Article'
 
 const ArticleList = ({
   articles,
-  deleteArticle, deleteComment,
+  deleteArticle,
   state, stateMe
 }) => {
   const articlesLength = articles.length;
@@ -17,7 +17,6 @@ const ArticleList = ({
           articlesLength={articlesLength}
           index={index}
           deleteArticle={deleteArticle}
-          deleteComment={deleteComment}
           stateMe={stateMe}
         />
       )
