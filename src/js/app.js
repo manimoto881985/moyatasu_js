@@ -1,5 +1,5 @@
 import React from 'react';
-import {db, auth, fieldValue} from './firebase';
+import {db, auth} from './firebase';
 import Header from '../components/Header';
 import ArticleForm from '../components/Article/ArticleForm';
 import ArticleList from '../components/Article/ArticleList';
