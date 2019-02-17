@@ -122,8 +122,8 @@ input[type="text"] {
   border-radius: 4px;
 }
 
-.moya__article {
-  margin-bottom: 14px;
+.moya__container .moya__article {
+  margin-bottom: 2rem;
 }
 
 .moya__content {
