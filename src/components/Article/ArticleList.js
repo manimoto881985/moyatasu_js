@@ -8,7 +8,7 @@ const ArticleList = ({
   const articlesLength = articles.length;
 
   return (
-    articles.reverse().map((article, index) => {
+    articles.map((article, index) => {
       return (
         <Article
           key={article.id}

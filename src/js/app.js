@@ -18,9 +18,12 @@ class App extends React.Component {
 
   // Component Methods
   componentDidMount() {
+    const DISPLAY_NUMBER = 20;
+
     auth.onAuthStateChanged(user => {
       if (user) {
-        dbCollectionArticles.orderBy('created').onSnapshot((docSnapShot) => {
+        const dbCollectionArticlesLimit = dbCollectionArticles.limit(DISPLAY_NUMBER);
+        dbCollectionArticlesLimit.orderBy('created', 'desc').onSnapshot((docSnapShot) => {
           dbCollectionComments.orderBy('created').get().then(querySnapshot => {
             const dataCommentsHash = this._generateCommentsHash(querySnapshot);
             return dataCommentsHash
