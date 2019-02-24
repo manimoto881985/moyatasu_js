@@ -243,6 +243,10 @@ input[type="text"] {
   text-align: right;
 }
 
+.moya__display_menu {
+  text-align: center;
+}
+
 /* react-expand-collapse */
 .react-expand-collapse__content {
   position: relative;
