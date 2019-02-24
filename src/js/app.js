@@ -18,9 +18,14 @@ class App extends React.Component {
 
   // Component Methods
   componentDidMount() {
+    const DISPLAY_NUMBER = 20;
+
     auth.onAuthStateChanged(user => {
       if (user) {
-        dbCollectionArticles.orderBy('created').onSnapshot((docSnapShot) => {
+        const dbCollectionArticlesLimit = this.state.displayAll ?
+          dbCollectionArticles :
+          dbCollectionArticles.limit(DISPLAY_NUMBER);
+        dbCollectionArticlesLimit.orderBy('created', 'desc').onSnapshot((docSnapShot) => {
           dbCollectionComments.orderBy('created').get().then(querySnapshot => {
             const dataCommentsHash = this._generateCommentsHash(querySnapshot);
             return dataCommentsHash
@@ -78,14 +83,25 @@ class App extends React.Component {
           <ArticleForm
             stateMe={this.state.me}
           />
+
           <ArticleList
             articles={this.state.articles.slice()}
             state={this.state}
             stateMe={this.state.me}
           />
+          <div className="moya__display_menu">
+            <button className="moya__display_all" onClick={this.displayAll}>すべて見る</button>
+          </div>
         </section>
       )
     }
+
+  displayAll = (e) => {
+    this.setState({
+      displayAll: true
+    });
+    this.componentDidMount();
+  }
 
   // Render Method
   render() {
