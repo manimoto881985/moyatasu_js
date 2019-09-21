@@ -10,7 +10,7 @@
     "react-dayjs": "^0.1.4",
     "react-dom": "^16.6.3",
     "react-expand-collapse": "^0.2.0",
-    "react-scripts": "2.1.1",
+    "react-scripts": "^3.1.2",
     "react-textarea-autosize": "^7.1.0",
     "react-truncate": "^2.4.0",
     "remark": "^10.0.1",
