@@ -25,17 +25,33 @@ class App extends React.Component {
         const dbCollectionArticlesLimit = this.state.displayAll ?
           dbCollectionArticles :
           dbCollectionArticles.limit(DISPLAY_NUMBER);
-        dbCollectionArticlesLimit.orderBy('created', 'desc').onSnapshot((docSnapShot) => {
-          dbCollectionComments.orderBy('created').get().then(querySnapshot => {
-            const dataCommentsHash = this._generateCommentsHash(querySnapshot);
-            return dataCommentsHash
-          }).then(commentsHash => {
-            const articles = this._buildArticles(docSnapShot, commentsHash)
 
-            this.setState({
-              articles,
-              loaded: true,
-              me: user
+        // Articles取得
+        dbCollectionArticlesLimit.orderBy('created', 'desc').onSnapshot((docSnapShot) => {
+          let articles = [];
+
+          docSnapShot.forEach(doc => {
+            let data = doc.data();
+            data.id = doc.id;
+
+            // Articleに紐づくコメント取得
+            dbCollectionComments.where("articleId", "==", doc.id).orderBy('created').get().then(querySnapshot => {
+              let comments = [];
+              querySnapshot.forEach(function(commentDoc) {
+                let commentData = commentDoc.data();
+                commentData.id = commentDoc.id;
+                comments.push(commentData);
+              });
+              return comments;
+            }).then(comments => {
+              data.comments = comments || [];
+              articles.push(data);
+
+              this.setState({
+                articles,
+                loaded: true,
+                me: user
+              });
             });
           });
         })
@@ -48,34 +64,6 @@ class App extends React.Component {
   }
 
   // Private Methods
-    // componentWillMount ()
-    _generateCommentsHash(querySnapshot) {
-      let comments = {};
-
-      querySnapshot.forEach(comment_doc => {
-        let comment_data = comment_doc.data();
-        comment_data.id = comment_doc.id;
-        const articleId = comment_data.articleId;
-        if(!comments[articleId]){ comments[articleId] = []; }
-        comments[articleId].push(comment_data);
-      });
-
-      return comments;
-    }
-
-    _buildArticles(docSnapShot, commentsHash) {
-      let articles = [];
-
-      docSnapShot.forEach(doc => {
-        let data = doc.data();
-        data.id = doc.id;
-        data.comments = commentsHash[doc.id] || [];
-        articles.push(data);
-      });
-
-      return articles;
-    }
-
     // render ()
     _renderContent() {
       return (
