@@ -229,6 +229,10 @@ input[type="text"] {
   font-size: 95%;
 }
 
+.moya__comment__content__body img {
+  max-width: 100%;
+}
+
 .moya__comment__datetime {
   font-size: 85%;
   text-align: right;
