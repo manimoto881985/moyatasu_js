@@ -152,6 +152,18 @@ input[type="text"] {
   max-width: 100%;
 }
 
+.moya__content_text ul {
+  padding-inline-start: 30px;
+}
+
+.moya__content_text li {
+  line-height: 1.6;
+}
+
+.moya__content_text li p {
+  margin-bottom: 0;
+}
+
 .moya__datetime {
   margin-top: 12px;
   font-size: 90%;
@@ -328,5 +340,9 @@ input[type="text"] {
 
   .moya__h1_image_first {
     display: none;
+  }
+
+  .moya__content_text ul {
+    padding-inline-start: 20px;
   }
 }
